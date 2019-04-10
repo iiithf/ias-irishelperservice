@@ -1,0 +1,28 @@
+{
+  "name": "ias-irishelperservice",
+  "version": "0.0.1",
+  "description": "This is a helper service to the iris model which reads the output stream of the Iris model and updates a UI for it.",
+  "main": "index.js",
+  "scripts": {
+    "test": "exit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iiithf/ias-irishelperservice.git"
+  },
+  "keywords": [
+    "ias",
+    "iris",
+    "helper",
+    "service"
+  ],
+  "author": "wolfram77@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iiithf/ias-irishelperservice/issues"
+  },
+  "homepage": "https://github.com/iiithf/ias-irishelperservice#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
