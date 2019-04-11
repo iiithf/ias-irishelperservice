@@ -1,4 +1,5 @@
 const express = require('express');
+const needle = require('needle');
 const http = require('http');
 const path = require('path');
 
@@ -7,9 +8,29 @@ const path = require('path');
 const E = process.env;
 const PORT = parseInt(E['PORT']||'8000', 10);
 const ASSETS = path.join(__dirname, 'assets');
+const SOURCE = E['SOURCE']||'';
+const DATARATE = parseInt(E['DATARATE']||'500', 10);
 const app = express();
 const server = http.createServer(app);
 const counts = {time: new Date(), setosa: 0, versicolor: 0, virginica: 0};
+
+
+
+function onData(data) {
+  var {flower} = data;
+  counts[flower]++;
+  counts.time = new Date();
+  return counts;
+}
+
+async function onInterval() {
+  if(!SOURCE) return;
+  var res = await needle('get', SOURCE);
+  console.log('SOURCE', SOURCE, res.body);
+  console.log('counts', onData(res.body));
+}
+setInterval(onInterval, DATARATE);
+
 
 
 app.use(express.urlencoded({extended: true}));
@@ -25,10 +46,7 @@ app.get('/status', (req, res) => {
   res.json(counts);
 });
 app.post('/status', (req, res) => {
-  var {flower} = req.body;
-  counts[flower]++;
-  counts.time = new Date();
-  res.json(counts);
+  res.json(onData(req.body));
 });
 
 app.use(express.static(ASSETS, {extensions: ['html']}));
