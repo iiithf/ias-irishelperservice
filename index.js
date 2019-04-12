@@ -9,6 +9,7 @@ const E = process.env;
 const PORT = parseInt(E['PORT']||'8000', 10);
 const ASSETS = path.join(__dirname, 'assets');
 const SOURCE = E['SOURCE']||'';
+const MODEL = E['MODEL']||'';
 const DATARATE = parseInt(E['DATARATE']||'500', 10);
 const app = express();
 const server = http.createServer(app);
@@ -17,9 +18,9 @@ const counts = {time: new Date(), setosa: 0, versicolor: 0, virginica: 0};
 
 
 function onData(data) {
-  var {flower} = data;
+  var {time, flower} = data;
   counts[flower]++;
-  counts.time = new Date();
+  counts.time = time||new Date();
   return counts;
 }
 
@@ -27,7 +28,20 @@ async function onInterval() {
   if(!SOURCE) return;
   var res = await needle('get', SOURCE);
   console.log('SOURCE', SOURCE, res.body);
-  console.log('counts', onData(res.body));
+  if(!MODEL) return;
+  var {time, inputs} = res.body;
+  var data = {examples: {
+    'sepal-length': inputs[0],
+    'sepal-width': inputs[1],
+    'petal-length': inputs[2],
+    'petal-width': inputs[3],
+  }};
+  res = await needle('post', MODEL+':classify', data, {json: true});
+  console.log('MODEL', MODEL, res.body);
+  var {results} = res.body;
+  results[0].sort((a, b) => b[1]-a[1]);
+  data = {time, flower: results[0][0][0].substring(5)};
+  console.log('counts', onData(data));
 }
 setInterval(onInterval, DATARATE);
 
