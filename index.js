@@ -30,12 +30,12 @@ async function onInterval() {
   console.log('SOURCE', SOURCE, res.body);
   if(!MODEL) return;
   var {time, inputs} = res.body;
-  var data = {examples: {
+  var data = {examples: [{
     'sepal-length': inputs[0],
     'sepal-width': inputs[1],
     'petal-length': inputs[2],
     'petal-width': inputs[3],
-  }};
+  }]};
   res = await needle('post', MODEL+':classify', data, {json: true});
   console.log('MODEL', MODEL, res.body);
   var {results} = res.body;
